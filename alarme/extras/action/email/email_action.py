@@ -1,0 +1,57 @@
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+import aiosmtplib
+from jinja2 import Environment, PackageLoader, Template
+
+import alarme.extras.action.email
+from alarme.core import Action
+
+
+class EmailAction(Action):
+
+    def __init__(self, app, name, id_, host, port, login, password, sender, recipient, subject, text=None, template=None):
+        super().__init__(app, name, id_)
+        self.host = host
+        self.port = port
+        self.login = login
+        self.password = password
+        self.sender = sender
+        self.recipient = recipient
+        self.subject = subject
+        self.text = text
+        self.template = template
+
+    async def run(self):
+        self.logger.info('send_email')
+        smtp = aiosmtplib.SMTP(hostname=self.host, port=self.port)
+        await smtp.connect()
+        await smtp.ehlo()
+        await smtp.starttls()
+        await smtp.ehlo()
+        await smtp.login(self.login, self.password)
+        env = {}
+        env.update(dict(
+            app=self.app,
+        ))
+        jinja_env = Environment(loader=PackageLoader(alarme.extras.action.email.__name__))
+        try:
+            plain_template = jinja_env.get_template(
+                '{}.txt'.format(self.template)
+            )
+        except:
+            plain_template = Template(self.text)
+        part1 = MIMEText(plain_template.render(**env), 'plain')
+        try:
+            html_template = jinja_env.get_template(
+                '{}.html'.format(self.template)
+            )
+        except:
+            msg = part1
+        else:
+            part2 = MIMEText(html_template.render(**env), 'html')
+            msg = MIMEMultipart('alternative')
+            msg.attach(part1)
+            msg.attach(part2)
+        msg['Subject'] = Template(self.subject).render(**env)
+        await smtp.sendmail(self.sender, [self.recipient], msg.as_string())

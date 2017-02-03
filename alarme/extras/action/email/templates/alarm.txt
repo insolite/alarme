@@ -1,0 +1,1 @@
+Alarme state has changed to {{ app.state.name }}

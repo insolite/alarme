@@ -1,0 +1,14 @@
+import asyncio
+
+from alarme.core.action import Action
+
+
+class SetStateAction(Action):
+
+    def __init__(self, app, name, id_, state_id):
+        super().__init__(app, name, id_)
+        self.state_id = state_id
+
+    async def run(self):
+        # Can't await cause this action must end in current state deactivation, so asyncio.ensure_future
+        asyncio.ensure_future(self.app.set_state(self.app.states[self.state_id]))

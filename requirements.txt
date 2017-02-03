@@ -1,0 +1,27 @@
+# Core requirements
+
+structlog[dev]
+configargparse
+pyyaml
+
+# Extra requirements
+
+# sensor.rf433
+rpi-rf
+
+# sensor.web
+aiohttp_jinja2
+
+# action.sound
+pyglet
+
+# action.email
+aiosmtplib
+
+# action.call
+gsm-modem-asyncio
+# RPi.GPIO # For GSM modem power control and reset
+
+# action.sms
+gsm-modem-asyncio
+# RPi.GPIO # For GSM modem power control and reset

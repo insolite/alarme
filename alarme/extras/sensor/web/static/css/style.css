@@ -1,0 +1,58 @@
+body {
+    /*padding: 8px;*/
+    background: #ebe6cc;
+}
+.row {
+    /*text-align: center;*/
+}
+.logo {
+    width: 100%;
+    max-width: 340px;
+    cursor: pointer;
+}
+.container-fluid {
+    max-width: 400px;
+    text-align: center;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+.current-state {
+    margin: 4px 6px 12px 6px;
+    text-align: center;
+}
+.current-state-value {
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+.behaviour-form {
+    display: inline-block;
+}
+.behaviour {
+    /*width: 100px;*/
+    /*height: 100px;*/
+    /*background: #ffc4c4;*/
+    /*margin: 8px;*/
+    /*cursor: pointer;*/
+    /*float: left;*/
+    /*border-radius: 4px;*/
+    /*border-style: solid;*/
+    /*border-color: #aaa;*/
+    /*border-width: 2px;*/
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: rgb(150, 150, 150);
+    outline: none;
+    margin: 4px;
+    cursor: pointer;
+}
+.color-start { background-color: rgb(150, 150, 150) !important; border-color: rgb(150, 150, 150) !important; }
+.color-pass { background-color: rgb(28, 184, 65) !important; border-color: rgb(28, 184, 65) !important; }
+.color-stay { background-color: rgb(66, 184, 221) !important; border-color: rgb(66, 184, 221) !important; }
+.color-guard { background-color: rgb(223, 117, 20) !important; border-color: rgb(223, 117, 20) !important; }
+.color-alarm { background-color: rgb(202, 60, 60) !important; border-color: rgb(202, 60, 60) !important; }
+.color-start:hover { background-color: rgb(120, 120, 120) !important; border-color: rgb(120, 120, 120) !important; }
+.color-pass:hover { background-color: rgb(0, 154, 35) !important; border-color: rgb(0, 154, 35) !important; }
+.color-stay:hover { background-color: rgb(36, 154, 191) !important; border-color: rgb(36, 154, 191) !important; }
+.color-guard:hover { background-color: rgb(193, 87, 0) !important; border-color: rgb(193, 87, 0) !important; }
+.color-alarm:hover { background-color: rgb(172, 30, 30) !important; border-color: rgb(172, 30, 30) !important; }

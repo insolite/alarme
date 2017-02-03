@@ -1,0 +1,2 @@
+recursive-include alarme *.py
+include requirements.txt
