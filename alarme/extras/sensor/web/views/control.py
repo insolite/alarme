@@ -20,5 +20,6 @@ class Control(CoreView):
     async def post(self):
         data = await self.request.post()
         behaviour = data['behaviour']
-        await self.sensor.notify(behaviour)
-        # TODO: wait for state change
+        futures = await self.sensor.notify(behaviour)
+        for future in (futures or []):
+            await future

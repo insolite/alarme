@@ -11,4 +11,4 @@ class SetStateAction(Action):
 
     async def run(self):
         # Can't await cause this action must end in current state deactivation, so asyncio.ensure_future
-        asyncio.ensure_future(self.app.set_state(self.app.states[self.state_id]))
+        return asyncio.ensure_future(self.app.set_state(self.app.states[self.state_id]))

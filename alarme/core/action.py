@@ -10,7 +10,7 @@ class Action(Essential):
     async def execute(self):
         self.logger.info('action_run')
         try:
-            await self.run()
+            result = await self.run()
         except:
             self.logger.error('action_crash', exc_info=True)
             raise
@@ -18,6 +18,7 @@ class Action(Essential):
             self.logger.info('action_end')
         finally:
             await self.cleanup()
+        return result
 
     async def run(self):
         pass

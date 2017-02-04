@@ -144,6 +144,5 @@ class Application:
 
     async def notify(self, sensor, code):
         if self.state:
-            await self.state.notify(sensor, code)
-        else:
-            self.logger.info('notify_ignore', reason='no_active_state')
+            return await self.state.notify(sensor, code)
+        self.logger.info('notify_ignore', reason='no_active_state')

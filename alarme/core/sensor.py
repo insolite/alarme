@@ -41,4 +41,4 @@ class Sensor(Essential):
 
     async def notify(self, code):
         self.logger.info('sensor_notify', code=code)
-        await self.app.notify(self, code)
+        return await self.app.notify(self, code)
