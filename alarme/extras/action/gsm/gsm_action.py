@@ -1,6 +1,6 @@
 from gsm_modem_asyncio import GsmModem
 
-from alarme.core import Action
+from alarme import Action
 
 
 class SingleGsmModemMeta(type):

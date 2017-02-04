@@ -1,4 +1,4 @@
-from alarme.core.action import Action
+from alarme import Action
 from alarme.extras.common import SingleRFDevice
 
 

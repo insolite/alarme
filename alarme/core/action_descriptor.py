@@ -12,3 +12,8 @@ class ActionDescriptor(Essential):
         final_kwargs = self.kwargs.copy()
         final_kwargs.update(kwargs)
         return self.factory(self.app, self.id, **final_kwargs)
+
+    def clone(self, **kwargs):
+        final_kwargs = self.kwargs.copy()
+        final_kwargs.update(kwargs)
+        return self.__class__(self.app, self.id, self.factory, **final_kwargs)

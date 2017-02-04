@@ -6,7 +6,7 @@ import aiohttp_jinja2
 import jinja2
 from aiohttp import web
 
-from alarme.core import Sensor
+from alarme import Sensor
 from . import views
 
 

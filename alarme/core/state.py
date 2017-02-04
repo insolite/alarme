@@ -19,8 +19,8 @@ class State(Essential):
     def remove_action(self, id_):
         self.schedules.pop(id_)
 
-    def add_behaviour(self, sensor_id, code, action_descriptor, action_data):
-        self.behaviours.setdefault(sensor_id, {}).setdefault(code, []).append((action_descriptor, action_data))
+    def add_behaviour(self, sensor_id, code, action_descriptor):
+        self.behaviours.setdefault(sensor_id, {}).setdefault(code, []).append(action_descriptor)
 
     def remove_behaviour(self, sensor_id):
         self.behaviours.pop(sensor_id)
@@ -41,12 +41,12 @@ class State(Essential):
     async def notify(self, sensor, code):
         logger = self.logger.bind(sensor=sensor.id, code=code)
         if sensor in self.sensors.values():
-            special_behavior = self.behaviours.get(sensor.id, {}).get(code)
-            behaviour = special_behavior or sensor.behaviours.get(code)
+            special_behaviour = self.behaviours.get(sensor.id, {}).get(code)
+            behaviour = special_behaviour or sensor.behaviours.get(code)
             if behaviour:
                 logger.info('sensor_react')
-                for action_descriptor, action_data in behaviour:
-                    action = action_descriptor.construct(**action_data)
+                for action_descriptor in behaviour:
+                    action = action_descriptor.construct()
                     if action:
                         try:
                             await action.execute()
@@ -56,6 +56,6 @@ class State(Essential):
                         logger.error('sensor_unknown_action')
                     # TODO: break if not self.running
             else:
-                logger.error('sensor_unknown_behaviour', behaviour=behaviour, special_behavior=special_behavior)
+                logger.error('sensor_unknown_behaviour', behaviour=behaviour, special_behavior=special_behaviour)
         else:
             logger.info('notify_ignore', reason='sensor_not_listed_for_state')

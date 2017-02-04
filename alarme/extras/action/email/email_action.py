@@ -1,11 +1,11 @@
+import sys
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import aiosmtplib
 from jinja2 import Environment, PackageLoader, Template
 
-import alarme.extras.action.email
-from alarme.core import Action
+from alarme import Action
 
 
 class EmailAction(Action):
@@ -35,7 +35,8 @@ class EmailAction(Action):
         env.update(dict(
             app=self.app,
         ))
-        jinja_env = Environment(loader=PackageLoader(alarme.extras.action.email.__name__))
+        package_name = sys.modules[__name__].__package__
+        jinja_env = Environment(loader=PackageLoader(package_name))
         try:
             plain_template = jinja_env.get_template(
                 '{}.txt'.format(self.template)

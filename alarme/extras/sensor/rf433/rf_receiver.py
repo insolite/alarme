@@ -1,6 +1,6 @@
 import asyncio
 
-from alarme.core.sensor import Sensor
+from alarme import Sensor
 from alarme.extras.common import SingleRFDevice
 
 

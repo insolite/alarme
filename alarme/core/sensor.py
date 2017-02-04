@@ -10,8 +10,8 @@ class Sensor(Essential):
         self.behaviours = {}
         self.running = True
 
-    def add_behaviour(self, code, action_descriptor, action_data):
-        self.behaviours.setdefault(code, []).append((action_descriptor, action_data))
+    def add_behaviour(self, code, action_descriptor):
+        self.behaviours.setdefault(code, []).append(action_descriptor)
 
     def remove_behaviour(self, code):
         self.behaviours.pop(code)

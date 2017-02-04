@@ -21,8 +21,8 @@ class Schedule(Essential):
         self._sleep_future = None
         self.running = False
 
-    def add_action(self, action_descriptor, action_data):
-        self.actions.append((action_descriptor, action_data))
+    def add_action(self, action_descriptor):
+        self.actions.append(action_descriptor)
 
     # def remove_action(self, action_id):
     #     self.actions.remove(action_id)
@@ -57,8 +57,8 @@ class Schedule(Essential):
             await self._sleep(self.delay)
             run_count = 0
             while self._continue(run_count):
-                for action_descriptor, action_data in self.actions:
-                    self.active_action = action_descriptor.construct(**action_data)
+                for action_descriptor in self.actions:
+                    self.active_action = action_descriptor.construct()
                     while self.running:
                         try:
                             await self.active_action.execute()

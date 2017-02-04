@@ -1,6 +1,6 @@
 import asyncio
 
-from alarme.core.action import Action
+from alarme import Action
 
 
 class SetStateAction(Action):

@@ -1,5 +1,4 @@
 from aiohttp.web import View, HTTPFound
-from structlog import get_logger
 
 
 def http_found(func):

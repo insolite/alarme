@@ -1,7 +1,6 @@
-import asyncio
 from unittest import TestCase
 
-from alarme.extras.action import EmailAction
+from alarme.extras import EmailAction
 
 
 class EmailActionTest(TestCase):

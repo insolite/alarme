@@ -24,7 +24,7 @@ def expand_actions(action_descriptors, actions):
             action = {'id': action}
         action_id = action.pop('id')
         action_data = action
-        result.append((action_descriptors[action_id], action_data))
+        result.append(action_descriptors[action_id].clone(**action_data))
     return result
 
 
@@ -59,8 +59,8 @@ class Application:
             behaviours = sensor_data.pop('behaviours', {})
             sensor = sensor_class(self, sensor_id, **sensor_data)
             for code, actions in behaviours.items():
-                for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
-                    sensor.add_behaviour(code, action_descriptor, action_data)
+                for action_descriptor in expand_actions(self.action_descriptors, actions):
+                    sensor.add_behaviour(code, action_descriptor)
             self.add_sensor(sensor_id, sensor)
 
         for state_id, state_data in config.get('states', {}).items():
@@ -71,8 +71,8 @@ class Application:
                 if isinstance(sensor, dict):
                     sensor_id = sensor['id']
                     for behaviour_code, actions in sensor['behaviours'].items():
-                        for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
-                            behaviours.append((sensor_id, behaviour_code, action_descriptor, action_data))
+                        for action_descriptor in expand_actions(self.action_descriptors, actions):
+                            behaviours.append((sensor_id, behaviour_code, action_descriptor))
                 else:
                     sensor_id = sensor
                 sensors[sensor_id] = self.sensors[sensor_id]
@@ -84,8 +84,8 @@ class Application:
                 schedule_class = default_schedule_factory
                 actions = schedule_data.pop('actions')
                 schedule = schedule_class(self, schedule_id, state, **schedule_data)
-                for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
-                    schedule.add_action(action_descriptor, action_data)
+                for action_descriptor in expand_actions(self.action_descriptors, actions):
+                    schedule.add_action(action_descriptor)
                 state.add_schedule(schedule_id, schedule)
             self.add_state(state_id, state)
 
