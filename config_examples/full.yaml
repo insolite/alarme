@@ -122,15 +122,11 @@ states: # Define states
     sensors: # React only for web sensor
       - web
     schedules: # Define schedules
-      send_start_email: # Send start E-mail once
-        actions:
-          - id: email_start
-        run_count: 1
-      set_pass_state: # Set pass state after 1 second to let `start_email` execute first. This will be implemented using order in the future.
-        actions:
+      start: # Send start E-mail once and change state to `pass`
+        actions: # Actions can be combined with order
+          - email_start
           - set_state_pass
         run_count: 1
-        delay: 1
   pass: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
       - id: web # Sensors behaviour can be overridden
