@@ -15,10 +15,6 @@ def import_class(class_str):
     return getattr(module, class_name)
 
 
-def get_default_name(klass, id_):
-    return 'Unnamed {}[{}]'.format(klass.__name__, id_)
-
-
 class Application:
 
     def __init__(self, exception_handler=None):
@@ -42,13 +38,11 @@ class Application:
             abstract = action_data.pop('abstract', False)
             if not abstract:
                 action_class = import_class(action_data.pop('class'))
-                name = action_data.pop('name', get_default_name(action_class, action_id))
                 action = default_action_descriptor_factory(self, action_id, action_class, **action_data)
                 self.add_action_descriptor(action_id, action)
 
         for sensor_id, sensor_data in config.get('sensors', {}).items():
             sensor_class = import_class(sensor_data.pop('class'))
-            name = sensor_data.pop('name', get_default_name(sensor_class, sensor_id))
             behaviours = sensor_data.pop('behaviours', {})
             sensor = sensor_class(self, sensor_id, **sensor_data)
             for code, behaviour in behaviours.items():
@@ -58,7 +52,6 @@ class Application:
 
         for state_id, state_data in config.get('states', {}).items():
             state_class = default_state_factory
-            name = state_data.pop('name', get_default_name(state_class, state_id))
             sensors = {}
             behaviours = []
             for sensor in state_data.pop('sensors', []):
@@ -76,7 +69,6 @@ class Application:
                 state.add_behaviour(*behaviour)
             for schedule_id, schedule_data in schedules_data.items():
                 schedule_class = default_schedule_factory
-                name = schedule_data.pop('name', get_default_name(schedule_class, schedule_id))
                 action_data = schedule_data.pop('action')
                 action_id = action_data.pop('id')
                 schedule = schedule_class(self, schedule_id, state, self.action_descriptors[action_id], action_data, **schedule_data)
