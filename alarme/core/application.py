@@ -43,14 +43,14 @@ class Application:
             if not abstract:
                 action_class = import_class(action_data.pop('class'))
                 name = action_data.pop('name', get_default_name(action_class, action_id))
-                action = default_action_descriptor_factory(self, name, action_id, action_class, **action_data)
+                action = default_action_descriptor_factory(self, action_id, action_class, **action_data)
                 self.add_action_descriptor(action_id, action)
 
         for sensor_id, sensor_data in config.get('sensors', {}).items():
             sensor_class = import_class(sensor_data.pop('class'))
             name = sensor_data.pop('name', get_default_name(sensor_class, sensor_id))
             behaviours = sensor_data.pop('behaviours', {})
-            sensor = sensor_class(self, name, sensor_id, **sensor_data)
+            sensor = sensor_class(self, sensor_id, **sensor_data)
             for code, behaviour in behaviours.items():
                 action_id = behaviour.pop('id')
                 sensor.add_behaviour(code, self.action_descriptors[action_id], behaviour)
@@ -71,7 +71,7 @@ class Application:
                     sensor_id = sensor
                 sensors[sensor_id] = self.sensors[sensor_id]
             schedules_data = state_data.pop('schedules', {})
-            state = state_class(self, name, state_id, sensors, **state_data)
+            state = state_class(self, state_id, sensors, **state_data)
             for behaviour in behaviours:
                 state.add_behaviour(*behaviour)
             for schedule_id, schedule_data in schedules_data.items():
@@ -79,7 +79,7 @@ class Application:
                 name = schedule_data.pop('name', get_default_name(schedule_class, schedule_id))
                 action_data = schedule_data.pop('action')
                 action_id = action_data.pop('id')
-                schedule = schedule_class(self, name, schedule_id, state, self.action_descriptors[action_id], action_data, **schedule_data)
+                schedule = schedule_class(self, schedule_id, state, self.action_descriptors[action_id], action_data, **schedule_data)
                 state.add_schedule(schedule_id, schedule)
             self.add_state(state_id, state)
 
@@ -104,7 +104,7 @@ class Application:
 
     async def set_state(self, state):
         real = self.state != state or state.reactivatable
-        self.logger.info('set_state', state=state.name, old_state=self.state.name if self.state else None, ignore=not real)
+        self.logger.info('set_state', state=state.id, old_state=self.state.id if self.state else None, ignore=not real)
         if real:
             if self.state:
                 await self.state.deactivate()

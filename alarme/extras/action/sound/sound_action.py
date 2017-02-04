@@ -9,8 +9,8 @@ from alarme.core import Action
 
 class SoundAction(Action):
 
-    def __init__(self, app, name, id_, sound):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_, sound):
+        super().__init__(app, id_)
         self.sound = sound
         self._future = None
 

@@ -5,8 +5,8 @@ from .essential import Essential
 
 class State(Essential):
 
-    def __init__(self, app, name, id_, sensors, reactivatable=True):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_, sensors, reactivatable=True):
+        super().__init__(app, id_)
         self.sensors = sensors
         self.schedules = {}
         self.behaviours = {}
@@ -38,7 +38,7 @@ class State(Essential):
             await asyncio.wait(self._schedules_tasks)
 
     async def notify(self, sensor, code):
-        logger = self.logger.bind(sensor=sensor.name, code=code)
+        logger = self.logger.bind(sensor=sensor.id, code=code)
         if sensor in self.sensors.values():
             special_behavior = self.behaviours.get(sensor.id, {}).get(code)
             behaviour = special_behavior or sensor.behaviours.get(code)

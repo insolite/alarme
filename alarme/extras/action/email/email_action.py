@@ -10,8 +10,8 @@ from alarme.core import Action
 
 class EmailAction(Action):
 
-    def __init__(self, app, name, id_, host, port, login, password, sender, recipient, subject, text=None, template=None):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_, host, port, login, password, sender, recipient, subject, text=None, template=None):
+        super().__init__(app, id_)
         self.host = host
         self.port = port
         self.login = login

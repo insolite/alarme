@@ -3,8 +3,8 @@ from .essential import Essential
 
 class Action(Essential):
 
-    def __init__(self, app, name, id_):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_):
+        super().__init__(app, id_)
         self.running = True
 
     async def execute(self):

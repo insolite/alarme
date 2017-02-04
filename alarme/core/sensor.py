@@ -5,8 +5,8 @@ from .essential import Essential
 
 class Sensor(Essential):
 
-    def __init__(self, app, name, id_):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_):
+        super().__init__(app, id_)
         self.behaviours = {}
         self.running = True
 

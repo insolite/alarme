@@ -5,8 +5,8 @@ from alarme.core.action import Action
 
 class SetStateAction(Action):
 
-    def __init__(self, app, name, id_, state_id):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_, state_id):
+        super().__init__(app, id_)
         self.state_id = state_id
 
     async def run(self):

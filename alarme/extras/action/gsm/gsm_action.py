@@ -19,8 +19,8 @@ class SingleGsmModem(GsmModem, metaclass=SingleGsmModemMeta):
 
 class GsmAction(Action):
 
-    def __init__(self, app, name, id_, serial_url):
-        super().__init__(app, name, id_)
+    def __init__(self, app, id_, serial_url):
+        super().__init__(app, id_)
         self.serial_url = serial_url
         self.gsm_modem = SingleGsmModem(self.serial_url)
 

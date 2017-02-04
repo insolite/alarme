@@ -1,1 +1,1 @@
-Alarme state has changed to {{ app.state.name }}
+Alarme state has changed to {{ app.state.id }}

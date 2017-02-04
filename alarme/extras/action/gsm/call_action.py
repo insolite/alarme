@@ -3,8 +3,8 @@ from .gsm_action import GsmAction
 
 class CallAction(GsmAction):
 
-    def __init__(self, app, name, id_, serial_url, number, seconds):
-        super().__init__(app, name, id_, serial_url)
+    def __init__(self, app, id_, serial_url, number, seconds):
+        super().__init__(app, id_, serial_url)
         self.number = number
         self.seconds = seconds
 
