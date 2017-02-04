@@ -59,9 +59,21 @@ class Application:
         for state_id, state_data in config.get('states', {}).items():
             state_class = default_state_factory
             name = state_data.pop('name', get_default_name(state_class, state_id))
-            sensors = {sensor_id: self.sensors[sensor_id] for sensor_id in state_data.pop('sensors', [])}
+            sensors = {}
+            behaviours = []
+            for sensor in state_data.pop('sensors', []):
+                if isinstance(sensor, dict):
+                    sensor_id = sensor['id']
+                    for behaviour_code, action_data in sensor['behaviours'].items():
+                        action_id = action_data.pop('id')
+                        behaviours.append((sensor_id, behaviour_code, self.action_descriptors[action_id], action_data))
+                else:
+                    sensor_id = sensor
+                sensors[sensor_id] = self.sensors[sensor_id]
             schedules_data = state_data.pop('schedules', {})
             state = state_class(self, name, state_id, sensors, **state_data)
+            for behaviour in behaviours:
+                state.add_behaviour(*behaviour)
             for schedule_id, schedule_data in schedules_data.items():
                 schedule_class = default_schedule_factory
                 name = schedule_data.pop('name', get_default_name(schedule_class, schedule_id))
@@ -126,21 +138,7 @@ class Application:
             self._app_run_future.set_result(None)
 
     async def notify(self, sensor, code):
-        logger = self.logger.bind(sensor=sensor.name, code=code)
-        if sensor in self.state.sensors.values():
-            behaviour = sensor.behaviours.get(code)
-            if behaviour:
-                action_descriptor, action_data = behaviour
-                logger.info('sensor_react')
-                action = action_descriptor.construct(**action_data)
-                if action:
-                    try:
-                        await action.execute()
-                    except:
-                        pass # TODO: Try again as in schedule?
-                else:
-                    logger.error('sensor_unknown_action')
-            else:
-                logger.error('sensor_unknown_behaviour')
+        if self.state:
+            await self.state.notify(sensor, code)
         else:
-            logger.info('sensor_ignore')
+            self.logger.info('notify_ignore', reason='no_active_state')

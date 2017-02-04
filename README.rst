@@ -59,5 +59,4 @@ Run tests (optionally):
 TODO
 ====
 
- * Overriding behaviours (actions) for states
  * Schedule/action order
