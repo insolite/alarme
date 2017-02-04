@@ -15,6 +15,19 @@ def import_class(class_str):
     return getattr(module, class_name)
 
 
+def expand_actions(action_descriptors, actions):
+    result = []
+    if not isinstance(actions, (list, tuple)):
+        actions = [actions]
+    for action in actions:
+        if not isinstance(action, dict):
+            action = {'id': action}
+        action_id = action.pop('id')
+        action_data = action
+        result.append((action_descriptors[action_id], action_data))
+    return result
+
+
 class Application:
 
     def __init__(self, exception_handler=None):
@@ -45,9 +58,9 @@ class Application:
             sensor_class = import_class(sensor_data.pop('class'))
             behaviours = sensor_data.pop('behaviours', {})
             sensor = sensor_class(self, sensor_id, **sensor_data)
-            for code, behaviour in behaviours.items():
-                action_id = behaviour.pop('id')
-                sensor.add_behaviour(code, self.action_descriptors[action_id], behaviour)
+            for code, actions in behaviours.items():
+                for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
+                    sensor.add_behaviour(code, action_descriptor, action_data)
             self.add_sensor(sensor_id, sensor)
 
         for state_id, state_data in config.get('states', {}).items():
@@ -57,9 +70,9 @@ class Application:
             for sensor in state_data.pop('sensors', []):
                 if isinstance(sensor, dict):
                     sensor_id = sensor['id']
-                    for behaviour_code, action_data in sensor['behaviours'].items():
-                        action_id = action_data.pop('id')
-                        behaviours.append((sensor_id, behaviour_code, self.action_descriptors[action_id], action_data))
+                    for behaviour_code, actions in sensor['behaviours'].items():
+                        for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
+                            behaviours.append((sensor_id, behaviour_code, action_descriptor, action_data))
                 else:
                     sensor_id = sensor
                 sensors[sensor_id] = self.sensors[sensor_id]
@@ -69,9 +82,10 @@ class Application:
                 state.add_behaviour(*behaviour)
             for schedule_id, schedule_data in schedules_data.items():
                 schedule_class = default_schedule_factory
-                action_data = schedule_data.pop('action')
-                action_id = action_data.pop('id')
-                schedule = schedule_class(self, schedule_id, state, self.action_descriptors[action_id], action_data, **schedule_data)
+                actions = schedule_data.pop('actions')
+                schedule = schedule_class(self, schedule_id, state, **schedule_data)
+                for action_descriptor, action_data in expand_actions(self.action_descriptors, actions):
+                    schedule.add_action(action_descriptor, action_data)
                 state.add_schedule(schedule_id, schedule)
             self.add_state(state_id, state)
 

@@ -55,8 +55,3 @@ Run tests (optionally):
 .. code-block:: bash
 
     python3 -m unittest discover tests
-
-TODO
-====
-
- * Schedule/action order

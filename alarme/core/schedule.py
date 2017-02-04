@@ -9,21 +9,23 @@ class ScheduleStop(Exception):
 
 class Schedule(Essential):
 
-    def __init__(self, app, id_, state, action_descriptor, action_data, run_count=None, run_interval=5, delay=0):
+    def __init__(self, app, id_, state, run_count=None, run_interval=5, delay=0):
         super().__init__(app, id_)
         self.state = state
-        self.action_descriptor = action_descriptor
-        self.action_data = action_data
         self.run_count = run_count
         self.run_interval = run_interval
         self.delay = delay
+        self.actions = []
         self.active_action = None
         self._future = None
         self._sleep_future = None
+        self.running = False
 
-    @property
-    def active(self):
-        return self.active_action and self.active_action.running
+    def add_action(self, action_descriptor, action_data):
+        self.actions.append((action_descriptor, action_data))
+
+    # def remove_action(self, action_id):
+    #     self.actions.remove(action_id)
 
     def _end(self):
         self.logger.info('schedule_end')
@@ -36,7 +38,7 @@ class Schedule(Essential):
 
     async def _sleep(self, delay):
         # TODO: Too complicated, reimplement it
-        if not self.active:
+        if not self.running:
             self._end()
         self._future = asyncio.Future()
         self._sleep_future = self.loop.call_later(delay, self._end_sleep)
@@ -46,23 +48,24 @@ class Schedule(Essential):
             self._end()
 
     def _continue(self, run_count):
-        return (self.run_count is None or run_count < self.run_count) and self.active
+        return (self.run_count is None or run_count < self.run_count) and self.running
 
     async def run(self):
+        self.logger.info('schedule_run', delay=self.delay)
+        self.running = True
         try:
-            self.logger.info('schedule_run')
-            self.active_action = self.action_descriptor.construct(**self.action_data)
-            self.logger.info('schedule_delay', delay=self.delay)
             await self._sleep(self.delay)
             run_count = 0
             while self._continue(run_count):
-                while True:
-                    try:
-                        await self.active_action.execute()
-                    except:
-                        await self._sleep(1)
-                    else:
-                        break
+                for action_descriptor, action_data in self.actions:
+                    self.active_action = action_descriptor.construct(**action_data)
+                    while True:
+                        try:
+                            await self.active_action.execute()
+                        except:
+                            await self._sleep(1)
+                        else:
+                            break
                 run_count += 1
                 if self._continue(run_count):
                     self.logger.info('schedule_interval', interval=self.run_interval)
@@ -71,7 +74,7 @@ class Schedule(Essential):
         except ScheduleStop:
             pass
         finally:
-            self.active_action = None
+            self.running = False
 
     def stop(self):
         self.logger.info('schedule_stop')
@@ -79,5 +82,6 @@ class Schedule(Essential):
             self._future.cancel()
         if self._sleep_future:
             self._sleep_future.cancel()
-        if self.active:
+        if self.active_action:
             self.active_action.stop()
+        self.running = False

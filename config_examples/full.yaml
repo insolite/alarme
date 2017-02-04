@@ -1,4 +1,23 @@
 actions: # Define actions
+  noop: # Do nothing
+    class: 'alarme.Action'
+  set_state: &set_state # Set current state
+    class: 'alarme.extras.SetStateAction'
+  set_state_start:
+    <<: *set_state
+    state_id: start
+  set_state_pass:
+    <<: *set_state
+    state_id: pass
+  set_state_stay:
+    <<: *set_state
+    state_id: stay
+  set_state_guard:
+    <<: *set_state
+    state_id: guard
+  set_state_alarm:
+    <<: *set_state
+    state_id: alarm
   email_base: &email_base # Base abstract E-mail action with SMTP connection details
     abstract: true
     class: 'alarme.extras.EmailAction'
@@ -36,70 +55,42 @@ actions: # Define actions
     class: 'alarme.extras.SmsAction'
     number: 'your-phone-number'
     text: 'Alarm'
-  set_state: # Set current state
-    class: 'alarme.extras.SetStateAction'
-  noop: # Do nothing
-    class: 'alarme.Action'
 sensors: # Define sensors
   remote: # Remote control with rf transmitter
     class: 'alarme.extras.RfReceiverSensor' # Use default rf receiver sensor class
     gpio: 27 # Receiver data output is connected to GPIO-27
     code: 12000 # Basic digital code is 12000. Channels are implemented through changing one bit (12001, 12002, 12004, 12008).
     behaviours: # Define which actions will be executed by receiving each xor'ed digital code
-      1: # Button 1 - change state to `stay`
-        id: set_state
-        state_id: stay
-      2: # Button 2 - change state to `pass`
-        id: set_state
-        state_id: pass
-      4: # Button 3 - change state to `guard`
-        id: set_state
-        state_id: guard
-      8: # Button 4 - change state to `alarm`
-        id: set_state
-        state_id: alarm
+      1: set_state_stay # Button 1 - change state to `stay`
+      2: set_state_pass # Button 2 - change state to `pass`
+      4: set_state_guard # Button 3 - change state to `guard`
+      8: set_state_alarm # Button 4 - change state to `alarm`
   movement: # Movement sensor with rf transmitter
     class: 'alarme.extras.RfReceiverSensor' # Use default rf receiver sensor class
     gpio: 27 # Receiver data output is connected to GPIO-27
     code: 13000 # Basic digital code
     behaviours: # Movement sensor transmitter does not use channels, it has a single base code
-      0: # Base code is not changed. Set `alarm` state by receiving this code by default.
-        id: set_state
-        state_id: alarm
+      0: set_state_alarm # Base code is not changed. Set `alarm` state by receiving this code by default.
   door: # Door open sensor with rf transmitter
     class: 'alarme.extras.RfReceiverSensor' # Use default rf receiver sensor class
     gpio: 27 # Receiver data output is connected to GPIO-27
     code: 14000 # Basic digital code
     behaviours: # Door open sensor transmitter does not use channels, it has a single base code
-      0: # Base code is not changed. Set `alarm` state by receiving this code by default.
-        id: set_state
-        state_id: alarm
+      0: set_state_alarm # Base code is not changed. Set `alarm` state by receiving this code by default.
   window: # Window open sensor with rf transmitter
     class: 'alarme.extras.RfReceiverSensor' # Use default rf receiver sensor class
     gpio: 27 # Receiver data output is connected to GPIO-27
     code: 15000 # Basic digital code
     behaviours: # Window open sensor transmitter does not use channels, it has a single base code
-      0: # Base code is not changed. Set `alarm` state by receiving this code by default.
-        id: set_state
-        state_id: alarm
+      0: set_state_alarm # Base code is not changed. Set `alarm` state by receiving this code by default.
   web: # Web server control
     class: 'alarme.extras.WebSensor' # Use default web server sensor class
     behaviours: # Define which actions web control panel can do by which notification code as a sensor
-      start: # Set `start` state
-        id: set_state
-        state_id: start
-      pass: # Set `pass` state
-        id: set_state
-        state_id: pass
-      stay: # Set `stay` state
-        id: set_state
-        state_id: stay
-      guard: # Set `guard` state
-        id: set_state
-        state_id: guard
-      alarm: # Set `alarm` state
-        id: set_state
-        state_id: alarm
+      start: set_state_start # Set `start` state
+      pass: set_state_pass # Set `pass` state
+      stay: set_state_stay # Set `stay` state
+      guard: set_state_guard # Set `guard` state
+      alarm: set_state_alarm # Set `alarm` state
     buttons: # Define control panel buttons - which code they send and how they look
       - behaviour: start # Code to notify as a sensor (defined in behaviours)
         label: Start # Button label
@@ -131,29 +122,27 @@ states: # Define states
     sensors: # React only for web sensor
       - web
     schedules: # Define schedules
-      start_email: # Send start E-mail once
-        action:
-          id: email_start
+      send_start_email: # Send start E-mail once
+        actions:
+          - id: email_start
         run_count: 1
       set_pass_state: # Set pass state after 1 second to let `start_email` execute first. This will be implemented using order in the future.
-        action:
-          id: set_state
-          state_id: pass
+        actions:
+          - set_state_pass
         run_count: 1
         delay: 1
   pass: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
-      - id: web # Certain sensors behaviour can be overridden
+      - id: web # Sensors behaviour can be overridden
         behaviours:
-          guard:
+          guard: # Actions with args can be inlined
             id: set_state
             state_id: guard
       - remote
     schedules: # Define schedules
       set_state: # Automatically set `stay` state after 30 seconds (time to open a door after setting `pass` state)
-        action:
-          id: set_state
-          state_id: stay
+        actions:
+          - set_state_stay
         run_count: 1
         delay: 30
   stay: # Used when owner is at guarding site to alarm on activating of "perimeter" sensors (e. g. door/window open sensors)
@@ -179,24 +168,23 @@ states: # Define states
       - movement
     schedules: # Alarm using all known actions
       email: # Send alarm E-mail
-        action:
-          id: email_alarm
+        actions: email_alarm # Single action can be written without list
         run_count: null
         run_interval: 60
       scream: # Play sound using speakers
-        action:
-          id: scream
+        actions:
+          - scream
         run_count: null
         run_interval: 1
       call: # Make GSM call
-        action:
-          id: call
+        actions:
+          - call
         run_count: null
         run_interval: 3
         delay: 3
       sms: # Send GSM SMS
-        action:
-          id: sms
+        actions:
+          - sms
         run_count: 3
         run_interval: 20
 initial_state: start # Set `start` state when alarme starts

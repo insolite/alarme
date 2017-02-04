@@ -21,3 +21,4 @@ class Control(CoreView):
         data = await self.request.post()
         behaviour = data['behaviour']
         await self.sensor.notify(behaviour)
+        # TODO: wait for state change

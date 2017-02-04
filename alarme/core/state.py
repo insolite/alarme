@@ -20,7 +20,7 @@ class State(Essential):
         self.schedules.pop(id_)
 
     def add_behaviour(self, sensor_id, code, action_descriptor, action_data):
-        self.behaviours.setdefault(sensor_id, {})[code] = (action_descriptor, action_data)
+        self.behaviours.setdefault(sensor_id, {}).setdefault(code, []).append((action_descriptor, action_data))
 
     def remove_behaviour(self, sensor_id):
         self.behaviours.pop(sensor_id)
@@ -43,16 +43,16 @@ class State(Essential):
             special_behavior = self.behaviours.get(sensor.id, {}).get(code)
             behaviour = special_behavior or sensor.behaviours.get(code)
             if behaviour:
-                action_descriptor, action_data = behaviour
                 logger.info('sensor_react')
-                action = action_descriptor.construct(**action_data)
-                if action:
-                    try:
-                        await action.execute()
-                    except:
-                        pass # TODO: Try again as in schedule?
-                else:
-                    logger.error('sensor_unknown_action')
+                for action_descriptor, action_data in behaviour:
+                    action = action_descriptor.construct(**action_data)
+                    if action:
+                        try:
+                            await action.execute()
+                        except:
+                            pass # TODO: Try again as in schedule?
+                    else:
+                        logger.error('sensor_unknown_action')
             else:
                 logger.error('sensor_unknown_behaviour', behaviour=behaviour, special_behavior=special_behavior)
         else:
