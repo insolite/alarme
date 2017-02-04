@@ -10,7 +10,7 @@ from alarme.core import Action
 
 class EmailAction(Action):
 
-    def __init__(self, app, id_, host, port, login, password, sender, recipient, subject, text=None, template=None):
+    def __init__(self, app, id_, host, port, login, password, sender, recipient, subject, env={}, text=None, template=None):
         super().__init__(app, id_)
         self.host = host
         self.port = port
@@ -19,6 +19,7 @@ class EmailAction(Action):
         self.sender = sender
         self.recipient = recipient
         self.subject = subject
+        self.env = env
         self.text = text
         self.template = template
 
@@ -30,7 +31,7 @@ class EmailAction(Action):
         await smtp.starttls()
         await smtp.ehlo()
         await smtp.login(self.login, self.password)
-        env = {}
+        env = self.env.copy()
         env.update(dict(
             app=self.app,
         ))

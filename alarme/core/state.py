@@ -34,6 +34,7 @@ class State(Essential):
         self.logger.info('state_deactivate')
         for schedule in self.schedules.values():
             schedule.stop()
+        # TODO: stop and wait executing actions in self.notify()
         if self._schedules_tasks:
             await asyncio.wait(self._schedules_tasks)
 
@@ -53,6 +54,7 @@ class State(Essential):
                             pass # TODO: Try again as in schedule?
                     else:
                         logger.error('sensor_unknown_action')
+                    # TODO: break if not self.running
             else:
                 logger.error('sensor_unknown_behaviour', behaviour=behaviour, special_behavior=special_behavior)
         else:

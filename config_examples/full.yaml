@@ -27,6 +27,8 @@ actions: # Define actions
     password: 'alarme-password'
     sender: 'Alarme <alarme-email@localhost>'
     recipient: 'your-email@localhost'
+    env:
+      alarme_url: 'http://alarme'
   email_alarm: # Send "alarm" E-mail
     <<: *email_base
     abstract: false

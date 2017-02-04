@@ -59,13 +59,15 @@ class Schedule(Essential):
             while self._continue(run_count):
                 for action_descriptor, action_data in self.actions:
                     self.active_action = action_descriptor.construct(**action_data)
-                    while True:
+                    while self.running:
                         try:
                             await self.active_action.execute()
                         except:
                             await self._sleep(1)
                         else:
                             break
+                    if not self.running:
+                        break
                 run_count += 1
                 if self._continue(run_count):
                     self.logger.info('schedule_interval', interval=self.run_interval)

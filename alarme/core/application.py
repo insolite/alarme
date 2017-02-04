@@ -130,7 +130,6 @@ class Application:
         self._app_run_future = asyncio.Future()
         await self._app_run_future
         self._app_run_future = None
-        # TODO: notify action stop
         for sensor in self.sensors.values():
             sensor.stop()
         await asyncio.wait(sensor_tasks)
