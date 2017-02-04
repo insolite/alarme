@@ -57,15 +57,11 @@ class Schedule(Essential):
             run_count = 0
             while self._continue(run_count):
                 while True:
-                    # TODO: deduplicate code
-                    self.logger.info('action_run', action=self.active_action.name)
                     try:
-                        await self.active_action.run()
+                        await self.active_action.execute()
                     except:
-                        self.logger.error('action_crash', exc_info=True)
-                        await self._sleep(self.delay)
+                        await self._sleep(1)
                     else:
-                        self.logger.info('action_end', action=self.active_action.name)
                         break
                 run_count += 1
                 if self._continue(run_count):
@@ -75,7 +71,6 @@ class Schedule(Essential):
         except ScheduleStop:
             pass
         finally:
-            await self.active_action.cleanup()
             self.active_action = None
 
     def stop(self):

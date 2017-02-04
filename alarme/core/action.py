@@ -7,6 +7,18 @@ class Action(Essential):
         super().__init__(app, name, id_)
         self.running = True
 
+    async def execute(self):
+        self.logger.info('action_run')
+        try:
+            await self.run()
+        except:
+            self.logger.error('action_crash', exc_info=True)
+            raise
+        else:
+            self.logger.info('action_end')
+        finally:
+            await self.cleanup()
+
     async def run(self):
         pass
 

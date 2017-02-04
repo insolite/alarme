@@ -34,7 +34,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            '{0} = {0}.scripts.server:main'.format(package_name),
+            '{} = {}.scripts.server:main'.format(hyphen_package_name, package_name),
         ],
     },
 )

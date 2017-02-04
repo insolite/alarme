@@ -105,10 +105,6 @@ class Application:
     def remove_action_descriptor(self, id_):
         self.action_descriptors.pop(id_)
 
-    async def run_action(self, action):
-        self.logger.info('run_action', action=action.name)
-        await action.run()
-
     async def run(self):
         self.logger.info('application_start')
         sensor_tasks = [asyncio.ensure_future(sensor.run_forever())
@@ -138,16 +134,10 @@ class Application:
                 logger.info('sensor_react')
                 action = action_descriptor.construct(**action_data)
                 if action:
-                    # TODO: deduplicate code
-                    self.logger.info('action_run', action=action.name)
                     try:
-                        await self.run_action(action)
+                        await action.execute()
                     except:
-                        self.logger.error('action_crash', exc_info=True)
-                    else:
-                        self.logger.info('action_end', action=action.name)
-                    finally:
-                        await action.cleanup()
+                        pass # TODO: Try again as in schedule?
                 else:
                     logger.error('sensor_unknown_action')
             else:

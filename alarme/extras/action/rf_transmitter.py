@@ -11,8 +11,8 @@ class RfTransmitterAction(Action):
         self.rf_device = SingleRFDevice(self.gpio)
 
     async def run(self):
+        self.rf_device.enable_tx()
         try:
-            self.rf_device.enable_tx()
             self.rf_device.tx_code(self.code)
         finally:
             self.rf_device.disable_tx()
