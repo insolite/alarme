@@ -13,9 +13,6 @@ class Sensor(Essential):
     def add_behaviour(self, code, action_descriptor):
         self.behaviours.setdefault(code, []).append(action_descriptor)
 
-    def remove_behaviour(self, code):
-        self.behaviours.pop(code)
-
     async def run_forever(self):
         while self.running:
             self.logger.info('sensor_run')

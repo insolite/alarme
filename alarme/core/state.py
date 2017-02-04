@@ -18,14 +18,8 @@ class State(Essential):
     def add_schedule(self, id_, schedule):
         self.schedules[id_] = schedule
 
-    def remove_action(self, id_):
-        self.schedules.pop(id_)
-
     def add_behaviour(self, sensor_id, code, action_descriptor):
         self.behaviours.setdefault(sensor_id, {}).setdefault(code, []).append(action_descriptor)
-
-    def remove_behaviour(self, sensor_id):
-        self.behaviours.pop(sensor_id)
 
     async def activate(self):
         self.logger.info('state_activate')
