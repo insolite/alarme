@@ -38,13 +38,6 @@ class Application:
         with open(config_path) as config_file:
             config = yaml.load(config_file)
 
-        for sensor_id, sensor_data in config.get('sensors', {}).items():
-            sensor_class = import_class(sensor_data.pop('class'))
-            name = sensor_data.pop('name', get_default_name(sensor_class, sensor_id))
-            behaviours = sensor_data.pop('behaviours', {})
-            sensor = sensor_class(self, name, sensor_id, behaviours, **sensor_data)
-            self.add_sensor(sensor_id, sensor)
-
         for action_id, action_data in config.get('actions', {}).items():
             abstract = action_data.pop('abstract', False)
             if not abstract:
@@ -52,6 +45,16 @@ class Application:
                 name = action_data.pop('name', get_default_name(action_class, action_id))
                 action = default_action_descriptor_factory(self, name, action_id, action_class, **action_data)
                 self.add_action_descriptor(action_id, action)
+
+        for sensor_id, sensor_data in config.get('sensors', {}).items():
+            sensor_class = import_class(sensor_data.pop('class'))
+            name = sensor_data.pop('name', get_default_name(sensor_class, sensor_id))
+            behaviours = sensor_data.pop('behaviours', {})
+            sensor = sensor_class(self, name, sensor_id, **sensor_data)
+            for code, behaviour in behaviours.items():
+                action_id = behaviour.pop('id')
+                sensor.add_behaviour(code, self.action_descriptors[action_id], behaviour)
+            self.add_sensor(sensor_id, sensor)
 
         for state_id, state_data in config.get('states', {}).items():
             state_class = default_state_factory
@@ -113,6 +116,7 @@ class Application:
         self._app_run_future = asyncio.Future()
         await self._app_run_future
         self._app_run_future = None
+        # TODO: notify action stop
         for sensor in self.sensors.values():
             sensor.stop()
         await asyncio.wait(sensor_tasks)
@@ -130,15 +134,22 @@ class Application:
         if sensor in self.state.sensors.values():
             behaviour = sensor.behaviours.get(code)
             if behaviour:
+                action_descriptor, action_data = behaviour
                 logger.info('sensor_react')
-                state = self.states.get(behaviour)
-                action = self.action_descriptors.get(behaviour)
-                if state:
-                    await self.set_state(state)
-                elif action:
-                    await self.run_action(action)
+                action = action_descriptor.construct(**action_data)
+                if action:
+                    # TODO: deduplicate code
+                    self.logger.info('action_run', action=action.name)
+                    try:
+                        await self.run_action(action)
+                    except:
+                        self.logger.error('action_crash', exc_info=True)
+                    else:
+                        self.logger.info('action_end', action=action.name)
+                    finally:
+                        await action.cleanup()
                 else:
-                    logger.error('sensor_unknown_handler')
+                    logger.error('sensor_unknown_action')
             else:
                 logger.error('sensor_unknown_behaviour')
         else:

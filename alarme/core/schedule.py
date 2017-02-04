@@ -56,8 +56,9 @@ class Schedule(Essential):
             await self._sleep(self.delay)
             run_count = 0
             while self._continue(run_count):
-                self.logger.info('action_run', action=self.active_action.name)
                 while True:
+                    # TODO: deduplicate code
+                    self.logger.info('action_run', action=self.active_action.name)
                     try:
                         await self.active_action.run()
                     except:

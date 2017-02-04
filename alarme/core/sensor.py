@@ -5,10 +5,16 @@ from .essential import Essential
 
 class Sensor(Essential):
 
-    def __init__(self, app, name, id_, behaviours):
+    def __init__(self, app, name, id_):
         super().__init__(app, name, id_)
-        self.behaviours = behaviours
+        self.behaviours = {}
         self.running = True
+
+    def add_behaviour(self, code, action_descriptor, action_data):
+        self.behaviours[code] = (action_descriptor, action_data)
+
+    def remove_behaviour(self, code):
+        self.behaviours.pop(code)
 
     async def run_forever(self):
         while self.running:

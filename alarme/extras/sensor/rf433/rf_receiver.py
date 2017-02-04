@@ -6,8 +6,8 @@ from alarme.extras.common import SingleRFDevice
 
 class RfReceiverSensor(Sensor):
 
-    def __init__(self, app, name, id_, behaviours, gpio, code):
-        super().__init__(app, name, id_, behaviours)
+    def __init__(self, app, name, id_, gpio, code):
+        super().__init__(app, name, id_)
         self.gpio = gpio
         self.code = code
         self.rf_device = SingleRFDevice(self.gpio)

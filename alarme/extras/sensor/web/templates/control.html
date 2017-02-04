@@ -12,10 +12,10 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% for behaviour, state_code in behaviours %}
+            {% for button in buttons %}
                 <form method="post" class="behaviour-form">
-                    <input type="hidden" name="behaviour" value="{{ behaviour }}"/>
-                    <button class="behaviour btn btn-primary color-{{ state_code }}">{{ states[state_code].name }}</button>
+                    <input type="hidden" name="behaviour" value="{{ button.behaviour }}"/>
+                    <button class="behaviour btn btn-primary color-{{ button.style }}">{{ button.label }}</button>
                 </form>
             {% endfor %}
         </div>
