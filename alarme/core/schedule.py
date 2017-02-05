@@ -24,9 +24,6 @@ class Schedule(Essential):
     def add_action(self, action_descriptor):
         self.actions.append(action_descriptor)
 
-    # def remove_action(self, action_id):
-    #     self.actions.remove(action_id)
-
     def _end(self):
         self.logger.info('schedule_end')
         self._future = None
@@ -50,6 +47,22 @@ class Schedule(Essential):
     def _continue(self, run_count):
         return (self.run_count is None or run_count < self.run_count) and self.running
 
+    async def run_actions(self):
+        for action_descriptor in self.actions:
+            self.active_action = action_descriptor.construct()
+            try:
+                while self.running:
+                    try:
+                        await self.active_action.execute()
+                    except:
+                        await self._sleep(1)
+                    else:
+                        break
+            finally:
+                self.active_action = None
+            if not self.running:
+                break
+
     async def run(self):
         self.logger.info('schedule_run', delay=self.delay)
         self.running = True
@@ -57,17 +70,7 @@ class Schedule(Essential):
             await self._sleep(self.delay)
             run_count = 0
             while self._continue(run_count):
-                for action_descriptor in self.actions:
-                    self.active_action = action_descriptor.construct()
-                    while self.running:
-                        try:
-                            await self.active_action.execute()
-                        except:
-                            await self._sleep(1)
-                        else:
-                            break
-                    if not self.running:
-                        break
+                await self.run_actions()
                 run_count += 1
                 if self._continue(run_count):
                     self.logger.info('schedule_interval', interval=self.run_interval)

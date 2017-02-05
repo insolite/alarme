@@ -37,27 +37,34 @@ class State(Essential):
         if self._schedules_tasks:
             await asyncio.wait(self._schedules_tasks)
 
+    async def sensor_react(self, sensor, code, behaviour):
+        logger = self.logger.bind(sensor=sensor.id, code=code)
+        logger.info('sensor_react')
+        result = []
+        try:
+            for action_descriptor in behaviour:
+                self.active_action = action_descriptor.construct()
+                try:
+                    result.append(await self.active_action.execute())
+                except:
+                    pass  # TODO: Try again as in schedule?
+                if not self.running:
+                    break
+        finally:
+            self.active_action = None
+        return result
+
     async def notify(self, sensor, code):
         logger = self.logger.bind(sensor=sensor.id, code=code)
-        result = []
         if sensor in self.sensors.values():
-            special_behaviour = self.behaviours.get(sensor.id, {}).get(code)
-            behaviour = special_behaviour or sensor.behaviours.get(code)
+            behaviour = self.get_behaviour(sensor, code)
             if behaviour:
-                logger.info('sensor_react')
-                try:
-                    for action_descriptor in behaviour:
-                        self.active_action = action_descriptor.construct()
-                        try:
-                            result.append(await self.active_action.execute())
-                        except:
-                            pass # TODO: Try again as in schedule?
-                        if not self.running:
-                            break
-                finally:
-                    self.active_action = None
+                return await self.sensor_react(sensor, code, behaviour)
             else:
-                logger.error('sensor_unknown_behaviour', behaviour=behaviour, special_behavior=special_behaviour)
+                logger.error('notify_ignore', reason='unknown_behaviour')
         else:
             logger.info('notify_ignore', reason='sensor_not_listed_for_state')
-        return result
+
+    def get_behaviour(self, sensor, code):
+        special_behaviour = self.behaviours.get(sensor.id, {}).get(code)
+        return special_behaviour or sensor.behaviours.get(code)

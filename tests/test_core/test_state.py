@@ -120,7 +120,7 @@ class StateTest(BaseTest):
         for task in self.state._schedules_tasks:
             self.assertTrue(task.done())
 
-    def test_deactivate__empty(self):
+    def test_deactivate__none(self):
         self.state.running = True
         self.state.active_action = None
         self.state.schedules = {}
@@ -128,3 +128,143 @@ class StateTest(BaseTest):
         self.loop.run_until_complete(self.state.deactivate())
 
         self.assertFalse(self.state.running)
+
+    def test_sensor_react__fine(self):
+        self.state.running = True
+        sensor = MagicMock()
+        code = MagicMock()
+        action_result = MagicMock()
+        action = MagicMock()
+        action.execute = CoroutineMock(return_value=action_result)
+        action_descriptor = MagicMock()
+        action_descriptor.construct = MagicMock(return_value=action)
+        behaviour = [action_descriptor]
+
+        result = self.loop.run_until_complete(self.state.sensor_react(sensor, code, behaviour))
+
+        self.assertEqual(result, [action_result])
+        self.assertIsNone(self.state.active_action)
+        action_descriptor.construct.assert_called_once_with()
+        action.execute.assert_called_once_with()
+
+    def test_sensor_react__exception(self):
+        self.state.running = True
+        sensor = MagicMock()
+        code = MagicMock()
+        action = MagicMock()
+        action.execute = CoroutineMock(side_effect=Exception)
+        action_descriptor = MagicMock()
+        action_descriptor.construct = MagicMock(return_value=action)
+        behaviour = [action_descriptor]
+
+        result = self.loop.run_until_complete(self.state.sensor_react(sensor, code, behaviour))
+
+        self.assertEqual(result, [])
+        self.assertIsNone(self.state.active_action)
+        action_descriptor.construct.assert_called_once_with()
+        action.execute.assert_called_once_with()
+
+    def test_sensor_react__stop(self):
+        self.state.running = True
+        sensor = MagicMock()
+        code = MagicMock()
+        action_result1 = MagicMock()
+        def stop():
+            self.state.running = False
+            return action_result1
+        action1 = MagicMock()
+        action1.execute = CoroutineMock(side_effect=stop)
+        action_descriptor1 = MagicMock()
+        action_descriptor1.construct = MagicMock(return_value=action1)
+        action_result2 = MagicMock()
+        action2 = MagicMock()
+        action2.execute = CoroutineMock(return_value=action_result2)
+        action_descriptor2 = MagicMock()
+        action_descriptor2.construct = MagicMock(return_value=action2)
+        behaviour = [action_descriptor1, action_descriptor2]
+
+        result = self.loop.run_until_complete(self.state.sensor_react(sensor, code, behaviour))
+
+        self.assertEqual(result, [action_result1])
+        self.assertIsNone(self.state.active_action)
+        action_descriptor1.construct.assert_called_once_with()
+        action1.execute.assert_called_once_with()
+        action_descriptor2.construct.assert_not_called()
+        action2.execute.assert_not_called()
+
+    def test_notify__react(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        behaviour = MagicMock()
+        react_result = MagicMock()
+        self.state.sensors = {sensor.id: sensor}
+        self.state.get_behaviour = MagicMock(return_value=behaviour)
+        self.state.sensor_react = CoroutineMock(return_value=react_result)
+
+        result = self.loop.run_until_complete(self.state.notify(sensor, code))
+
+        self.assertEqual(result, react_result)
+        self.state.get_behaviour.assert_called_once_with(sensor, code)
+        self.state.sensor_react.assert_called_once_with(sensor, code, behaviour)
+
+    def test_notify__ignore_no_behaviour(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        self.state.sensors = {sensor.id: sensor}
+        self.state.get_behaviour = MagicMock(return_value=None)
+        self.state.sensor_react = CoroutineMock()
+
+        result = self.loop.run_until_complete(self.state.notify(sensor, code))
+
+        self.assertIsNone(result)
+        self.state.get_behaviour.assert_called_once_with(sensor, code)
+        self.state.sensor_react.assert_not_called()
+
+    def test_notify__ignore_no_sensor(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        self.state.sensors = {}
+        self.state.get_behaviour = MagicMock()
+        self.state.sensor_react = CoroutineMock()
+
+        result = self.loop.run_until_complete(self.state.notify(sensor, code))
+
+        self.assertIsNone(result)
+        self.state.get_behaviour.assert_not_called()
+        self.state.sensor_react.assert_not_called()
+
+    def test_get_behaviour__sensor(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        expected_behaviour = MagicMock()
+        sensor.behaviours = {code: expected_behaviour}
+        self.state.behaviours = {}
+
+        behaviour = self.state.get_behaviour(sensor, code)
+
+        self.assertEqual(behaviour, expected_behaviour)
+
+    def test_get_behaviour__sensor_another_code(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        another_code = MagicMock()
+        special_behaviour = MagicMock()
+        expected_behaviour = MagicMock()
+        sensor.behaviours = {code: expected_behaviour}
+        self.state.behaviours = {sensor.id: {another_code: special_behaviour}}
+
+        behaviour = self.state.get_behaviour(sensor, code)
+
+        self.assertEqual(behaviour, expected_behaviour)
+
+    def test_get_behaviour__state(self):
+        sensor = MagicMock()
+        code = MagicMock()
+        native_behaviour = MagicMock()
+        expected_behaviour = MagicMock()
+        sensor.behaviours = {code: native_behaviour}
+        self.state.behaviours = {sensor.id: {code: expected_behaviour}}
+
+        behaviour = self.state.get_behaviour(sensor, code)
+
+        self.assertEqual(behaviour, expected_behaviour)
