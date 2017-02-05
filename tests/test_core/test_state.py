@@ -27,7 +27,7 @@ class StateTest(BaseTest):
 
         self.assertEqual(self.state.schedules, {id_: schedule})
 
-    def test_add_schedule__another_schedule_exists(self):
+    def test_add_schedule__exists(self):
         id1 = MagicMock()
         id2 = MagicMock()
         schedule1 = MagicMock()

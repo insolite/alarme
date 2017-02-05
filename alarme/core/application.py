@@ -41,9 +41,9 @@ class Application:
         self._app_run_future = None
 
     async def load_config(self, config_path,
-                    default_state_factory=State,
-                    default_action_descriptor_factory=ActionDescriptor,
-                    default_schedule_factory=Schedule):
+                          default_state_factory=State,
+                          default_action_descriptor_factory=ActionDescriptor,
+                          default_schedule_factory=Schedule):
         with open(config_path) as config_file:
             config = yaml.load(config_file)
 
@@ -99,14 +99,11 @@ class Application:
     def add_sensor(self, id_, sensor):
         self.sensors[id_] = sensor
 
-    def remove_sensor(self, id_):
-        self.sensors.pop(id_)
-
     def add_state(self, id_, state):
         self.states[id_] = state
 
-    def remove_state(self, id_):
-        self.states.pop(id_)
+    def add_action_descriptor(self, id_, action_descriptor):
+        self.action_descriptors[id_] = action_descriptor
 
     async def set_state(self, state):
         real = self.state != state or state.reactivatable
@@ -116,12 +113,6 @@ class Application:
                 await self.state.deactivate()
             self.state = state
             await self.state.activate()
-
-    def add_action_descriptor(self, id_, action_descriptor):
-        self.action_descriptors[id_] = action_descriptor
-
-    def remove_action_descriptor(self, id_):
-        self.action_descriptors.pop(id_)
 
     async def run(self):
         self.logger.info('application_start')

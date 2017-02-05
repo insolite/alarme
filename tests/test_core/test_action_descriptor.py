@@ -1,6 +1,4 @@
-import asyncio
-from unittest.mock import MagicMock, call
-from functools import partial
+from unittest.mock import MagicMock
 
 from alarme import ActionDescriptor
 from tests.common import BaseTest
