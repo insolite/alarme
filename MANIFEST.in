@@ -1,2 +1,2 @@
-recursive-include alarme *.py
+recursive-include alarme *.py *.html *.css *.txt *.wav *.png
 include requirements.txt
