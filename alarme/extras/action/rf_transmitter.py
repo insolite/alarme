@@ -26,7 +26,6 @@ class RfTransmitterAction(Action):
                 run_count += 1
                 if self._continue(run_count):
                     await asyncio.sleep(self.run_interval)
-            self.rf_device.tx_code(self.code)
         finally:
             self.rf_device.disable_tx()
 
