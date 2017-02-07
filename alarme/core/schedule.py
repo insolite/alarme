@@ -9,7 +9,7 @@ class ScheduleStop(Exception):
 
 class Schedule(Essential):
 
-    def __init__(self, app, id_, state, run_count=None, run_interval=5, delay=0):
+    def __init__(self, app, id_, state, run_count=None, run_interval=1, delay=0):
         super().__init__(app, id_)
         self.state = state
         self.run_count = run_count

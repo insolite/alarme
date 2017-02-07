@@ -1,1 +1,1 @@
-sudo PYTHONPATH=. python3.5 alarme/scripts/run_server.py -c config_sample.yaml
+sudo PYTHONPATH=. python3 alarme/scripts/server.py -c my.yaml
