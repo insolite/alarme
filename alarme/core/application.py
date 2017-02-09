@@ -1,4 +1,5 @@
 import asyncio
+import os.path
 from importlib import import_module
 
 import yaml
@@ -7,6 +8,9 @@ from structlog import get_logger
 from .state import State
 from .action_descriptor import ActionDescriptor
 from .schedule import Schedule
+
+
+MAIN_CONFIG_FILE = 'config.yaml'
 
 
 def import_class(class_str):
@@ -39,13 +43,15 @@ class Application:
         self.logger = get_logger()
         self.loop = asyncio.get_event_loop()
         self._app_run_future = None
+        self.config_path = None
 
     async def load_config(self, config_path,
                           default_state_factory=State,
                           default_action_descriptor_factory=ActionDescriptor,
                           default_schedule_factory=Schedule):
-        with open(config_path) as config_file:
+        with open(os.path.join(config_path, MAIN_CONFIG_FILE)) as config_file:
             config = yaml.load(config_file)
+        self.config_path = config_path
 
         for action_id, action_data in config.get('actions', {}).items():
             abstract = action_data.pop('abstract', False)

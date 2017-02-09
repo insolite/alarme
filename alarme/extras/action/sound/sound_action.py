@@ -1,4 +1,3 @@
-import sys
 import asyncio
 import os.path
 
@@ -16,10 +15,8 @@ class SoundAction(Action):
 
     async def run(self):
         self.logger.info('play_sound')
-        package_name = sys.modules[__name__].__package__
-        package_path, = sys.modules[package_name].__path__
         player = pyglet.media.Player()
-        source = pyglet.media.load(os.path.join(package_path, 'sounds', self.sound), streaming=False)
+        source = pyglet.media.load(os.path.join(self.app.config_path or '', self.sound), streaming=False)
         # player.push_handlers(on_eos=self.end) # Not working, so do it using call_later() and source.duration
         end_task = self.loop.call_later(source.duration, self.end)
         player.queue(source)

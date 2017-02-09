@@ -37,7 +37,7 @@ def run(config_path, log,
 def main():
     parser = configargparse.ArgParser(description='Alarm system software for Raspberry Pi')
     parser.add_argument('-gc', '--generic-config', is_config_file=True, help='Generic config')
-    parser.add_argument('-c', '--config', help='Main config')
+    parser.add_argument('-c', '--config', help='Config directory')
     parser.add_argument('-l', '--log', type=str, default='/var/log/alarme', help='Logs dir')
     args = parser.parse_args()
     run(args.config, args.log)

@@ -1,4 +1,3 @@
-import sys
 import asyncio
 import os.path
 from unittest.mock import MagicMock
@@ -18,7 +17,7 @@ class ApplicationTest(BaseTest):
 
     def test_load_config(self):
         package_path, = alarme.__path__
-        config_path = os.path.join(package_path, '..', 'config_examples', 'full.yaml')
+        config_path = os.path.join(package_path, '..', 'config_examples', 'full')
 
         self.loop.run_until_complete(
             self.application.load_config(config_path)
