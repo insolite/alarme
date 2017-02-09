@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+  <row weight="2">
+    <label id="current_state" text="Loading..." weight="2" />
+    <button id="reload" ontap="reload" text="reload" weight="1" icon="refresh" color="#c1a0ef" />
+  </row>
+  <row weight="2">
+    <button id="state_pass" ontap="set_state_pass" text="Loading..." />
+    <button id="state_guard" ontap="set_state_guard" text="Loading..." />
+  </row>
+  <row weight="1">
+    <label id="info" text="Loading..." color="#e2e2e2" light="color:#aaa;focus:#bbb;active:#ccc" />
+  </row>
+  <row weight="1">
+    <button id="state_start" ontap="set_state_start" text="Loading..." />
+    <button id="state_disable" ontap="set_state_disable" text="Loading..." />
+    <button id="state_stay" ontap="set_state_stay" text="Loading..." />
+    <button id="state_alarm" ontap="set_state_alarm" text="Loading..." />
+  </row>
+</layout>

@@ -1,0 +1,5 @@
+meta.name: AlarMe
+meta.author: Oleg Krasnikov
+meta.icon: icon.png
+meta.description: Alarme control
+meta.platform: linux windows mac
