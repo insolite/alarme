@@ -5,9 +5,10 @@ from .essential import Essential
 
 class State(Essential):
 
-    def __init__(self, app, id_, sensors, reactivatable=True):
+    def __init__(self, app, id_, sensors, color='#ddd', reactivatable=True):
         super().__init__(app, id_)
         self.sensors = sensors
+        self.color = color
         self.schedules = {}
         self.behaviours = {}
         self.reactivatable = reactivatable
@@ -68,3 +69,7 @@ class State(Essential):
     def get_behaviour(self, sensor, code):
         special_behaviour = self.behaviours.get(sensor.id, {}).get(code)
         return special_behaviour or sensor.behaviours.get(code)
+
+    def as_dict(self):
+        return dict(id=self.id,
+                    color=self.color)

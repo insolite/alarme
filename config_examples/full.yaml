@@ -94,25 +94,30 @@ sensors: # Define sensors
       guard: set_state_guard # Set `guard` state
       alarm: set_state_alarm # Set `alarm` state
     buttons: # Define control panel buttons - which code they send and how they look
-      - behaviour: start # Code to notify as a sensor (defined in behaviours)
+      start:
+        behaviour: start # Code to notify as a sensor (defined in behaviours)
         label: Start # Button label
-        style: start # CSS class
+        color: "@start" # State's color
         order: 0 # Sort order in buttons list
-      - behaviour: pass # Code to notify as a sensor (defined in behaviours)
+      start:
+        behaviour: pass # Code to notify as a sensor (defined in behaviours)
         label: Pass # Button label
-        style: pass # CSS class
+        color: "@pass" # State's color
         order: 1 # Sort order in buttons list
-      - behaviour: stay # Code to notify as a sensor (defined in behaviours)
+      start:
+        behaviour: stay # Code to notify as a sensor (defined in behaviours)
         label: Stay # Button label
-        style: stay # CSS class
+        color: "@stay" # State's color
         order: 2 # Sort order in buttons list
-      - behaviour: guard # Code to notify as a sensor (defined in behaviours)
+      start:
+        behaviour: guard # Code to notify as a sensor (defined in behaviours)
         label: Guard # Button label
-        style: guard # CSS class
+        color: "@guard" # State's color
         order: 3 # Sort order in buttons list
-      - behaviour: alarm # Code to notify as a sensor (defined in behaviours)
+      start:
+        behaviour: alarm # Code to notify as a sensor (defined in behaviours)
         label: Alarm # Button label
-        style: alarm # CSS class
+        color: "@alarm" # State's color
         order: 4 # Sort order in buttons list
     host: '*' # Host for web server listening
     port: 8000 # Port for web server listening

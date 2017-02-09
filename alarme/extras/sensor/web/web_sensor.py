@@ -7,7 +7,7 @@ import jinja2
 from aiohttp import web
 
 from alarme import Sensor
-from . import views
+from . import views, filters
 
 
 def generate_core_view(sensor, original_handler):
@@ -36,11 +36,12 @@ class WebSensor(Sensor):
         jinja_env = aiohttp_jinja2.setup(
             app, loader=jinja2.PackageLoader(package_name))
         filter_functions = [
-            # filters.selected,
+            filters.expand_color,
         ]
         jinja_env.filters.update({filter_function.__name__: filter_function
                                   for filter_function in filter_functions})
         app.router.add_route('*', '/control', generate_view(views.Control), name='control')
+        app.router.add_route('*', '/info', generate_view(views.Info), name='info')
         app.router.add_route('*', '/', generate_view(views.Home), name='home')
         app.router.add_static('/static', path=os.path.join(package_path, 'static'), name='static')
         self.web_handler = app.make_handler()

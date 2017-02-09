@@ -268,3 +268,12 @@ class StateTest(BaseTest):
         behaviour = self.state.get_behaviour(sensor, code)
 
         self.assertEqual(behaviour, expected_behaviour)
+
+    def test_as_dict(self):
+        self.state.id = 'alarm'
+        self.state.color = 'red'
+        expected_result = dict(id=self.state.id, color=self.state.color)
+
+        result = self.state.as_dict()
+
+        self.assertEqual(result, expected_result)

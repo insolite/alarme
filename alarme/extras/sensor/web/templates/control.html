@@ -7,15 +7,21 @@
      </div>
     <div class="row current-state">
         <div class="col-md-12">
-            <div class="current-state-value btn btn-info color-{{ current_state.id }}">Current state: {{ current_state.id }}</div>
+            <div class="current-state-value btn btn-info" style="
+                        background-color: {{ current_state.color }} !important;
+                        border-color: {{ current_state.color }} !important;
+                    ">Current state: {{ current_state.id }}</div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
-            {% for button in buttons %}
+            {% for button in buttons.values() | sort(attribute='order') %}
                 <form method="post" class="behaviour-form">
                     <input type="hidden" name="behaviour" value="{{ button.behaviour }}"/>
-                    <button class="behaviour btn btn-primary color-{{ button.style }}">{{ button.label }}</button>
+                    <button class="behaviour btn btn-primary" style="
+                        background-color: {{ button.color | expand_color(states) }} !important;
+                        border-color: {{ button.color | expand_color(states) }} !important;
+                    ">{{ button.label }}</button>
                 </form>
             {% endfor %}
         </div>
