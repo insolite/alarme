@@ -6,9 +6,15 @@ actions: # Define actions
   set_state_start:
     <<: *set_state
     state_id: start
+  set_state_disable:
+    <<: *set_state
+    state_id: disable
   set_state_pass:
     <<: *set_state
     state_id: pass
+  set_state_exit:
+    <<: *set_state
+    state_id: exit
   set_state_stay:
     <<: *set_state
     state_id: stay
@@ -89,7 +95,9 @@ sensors: # Define sensors
     class: 'alarme.extras.WebSensor' # Use default web server sensor class
     behaviours: # Define which actions web control panel can do by which notification code as a sensor
       start: set_state_start # Set `start` state
+      disable: set_state_disable # Set `disable` state
       pass: set_state_pass # Set `pass` state
+      exit: set_state_exit # Set `exit` state
       stay: set_state_stay # Set `stay` state
       guard: set_state_guard # Set `guard` state
       alarm: set_state_alarm # Set `alarm` state
@@ -99,26 +107,36 @@ sensors: # Define sensors
         label: Start # Button label
         color: "@start" # State's color
         order: 0 # Sort order in buttons list
-      start:
+      disable:
+        behaviour: disable # Code to notify as a sensor (defined in behaviours)
+        label: Disable # Button label
+        color: "@disable" # State's color
+        order: 1 # Sort order in buttons list
+      pass:
         behaviour: pass # Code to notify as a sensor (defined in behaviours)
         label: Pass # Button label
         color: "@pass" # State's color
-        order: 1 # Sort order in buttons list
-      start:
+        order: 2 # Sort order in buttons list
+      exit:
+        behaviour: exit # Code to notify as a sensor (defined in behaviours)
+        label: Exit # Button label
+        color: "@exit" # State's color
+        order: 3 # Sort order in buttons list
+      stay:
         behaviour: stay # Code to notify as a sensor (defined in behaviours)
         label: Stay # Button label
         color: "@stay" # State's color
-        order: 2 # Sort order in buttons list
-      start:
+        order: 4 # Sort order in buttons list
+      guard:
         behaviour: guard # Code to notify as a sensor (defined in behaviours)
         label: Guard # Button label
         color: "@guard" # State's color
-        order: 3 # Sort order in buttons list
-      start:
+        order: 5 # Sort order in buttons list
+      alarm:
         behaviour: alarm # Code to notify as a sensor (defined in behaviours)
         label: Alarm # Button label
         color: "@alarm" # State's color
-        order: 4 # Sort order in buttons list
+        order: 6 # Sort order in buttons list
     host: '*' # Host for web server listening
     port: 8000 # Port for web server listening
     login: admin # Login to control panel
@@ -134,6 +152,10 @@ states: # Define states
           - email_start
           - set_state_pass
         run_count: 1
+  disable: # Used to turn off automatic alarming by reacting for non-control sensors
+    sensors: # Ignore all sensors except for `web` and `remote`
+      - web
+      - remote
   pass: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
       - id: web # Sensors behaviour can be overridden
@@ -146,6 +168,16 @@ states: # Define states
       set_state: # Automatically set `stay` state after 30 seconds (time to open a door after setting `pass` state)
         actions:
           - set_state_stay
+        run_count: 1
+        delay: 30
+  exit: # Used to turn off automatic alarming by reacting for non-control sensors
+    sensors: # Ignore all sensors except for `web` and `remote`
+      - web
+      - remote
+    schedules: # Define schedules
+      set_state: # Automatically set `guard` state after 30 seconds (time to open a door after setting `exit` state)
+        actions:
+          - set_state_guard
         run_count: 1
         delay: 30
   stay: # Used when owner is at guarding site to alarm on activating of "perimeter" sensors (e. g. door/window open sensors)

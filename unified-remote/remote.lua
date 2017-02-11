@@ -60,8 +60,13 @@ actions.set_state_disable = function()
 end
 
 --@help set_state_pass
-actions.set_state_pass= function()
+actions.set_state_pass = function()
     set_state("pass");
+end
+
+--@help set_state_exit
+actions.set_state_exit = function()
+    set_state("exit");
 end
 
 --@help set_state_stay

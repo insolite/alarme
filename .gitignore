@@ -66,3 +66,6 @@ target/
 
 # logs dir
 **/logs/
+
+# Unified Remote remote config file
+unified-remote/settings.prop

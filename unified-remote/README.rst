@@ -46,5 +46,3 @@ Settings fields are:
 * `url` - AlarMe server url. Default: `http://127.0.0.1:8000`
 * `login` - AlarMe web sensor login. Default: `admin`
 * `password` - AlarMe web sensor password. Default: `admin`
-
-All default settings described in `settings.prop` file
