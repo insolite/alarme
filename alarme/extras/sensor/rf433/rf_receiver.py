@@ -6,10 +6,11 @@ from alarme.extras.common import SingleRFDevice
 
 class RfReceiverSensor(Sensor):
 
-    def __init__(self, app, id_, gpio, code):
+    def __init__(self, app, id_, gpio, code, check_interval=0.1):
         super().__init__(app, id_)
         self.gpio = gpio
         self.code = code
+        self.check_interval = check_interval
         self.rf_device = SingleRFDevice(self.gpio)
 
     async def process_code(self, raw_code):
@@ -34,6 +35,6 @@ class RfReceiverSensor(Sensor):
                                       pulselength=self.rf_device.rx_pulselength,
                                       protocol=self.rf_device.rx_proto)
                     await self.process_code(raw_code)
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(self.check_interval)
         finally:
             self.rf_device.disable_rx()
