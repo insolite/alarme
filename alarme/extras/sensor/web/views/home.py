@@ -12,7 +12,6 @@ class Home(CoreView):
 
     @handle_exception
     async def get(self):
-        self.sensor.app.stop()
         return await self.req()
 
     @handle_exception
