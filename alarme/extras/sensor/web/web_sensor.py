@@ -22,7 +22,7 @@ def generate_core_view(sensor, original_handler):
 
 class WebSensor(Sensor):
 
-    def __init__(self, app, id_, host, port, buttons=[], login=None, password=None, debug=False):
+    def __init__(self, app, id_, host, port, buttons={}, login=None, password=None, debug=False):
         super().__init__(app, id_)
         self.host = host
         self.port = port
