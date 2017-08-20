@@ -29,7 +29,3 @@ class RfTransmitterAction(Action):
                     await asyncio.sleep(self.run_interval)
         finally:
             self.rf_device.disable_tx()
-
-    async def cleanup(self):
-        await super().cleanup()
-        # self.rf_device.cleanup()
