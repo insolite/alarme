@@ -25,3 +25,6 @@ gsm-modem-asyncio
 # action.sms
 gsm-modem-asyncio
 # RPi.GPIO # For GSM modem power control and reset
+
+# action.telegram
+aiotg

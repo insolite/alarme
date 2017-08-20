@@ -45,6 +45,19 @@ actions: # Define actions
     abstract: false
     subject: 'Alarme start'
     text: 'Alarme has started'
+  telegram_base: &telegram_base
+    abstract: true
+    class: 'alarme.extras.TelegramAction'
+    api_token: 'BOT API TOKEN' # Bot API token
+    target: 'USER ID' # Private chat ID
+  telegram_start:
+    <<: *telegram_base
+    abstract: false
+    text: 'Alarme start'
+  telegram_alarm:
+    <<: *telegram_base
+    abstract: false
+    text: 'Alarm!'
   scream: # Play sound using speakers
     class: 'alarme.extras.SoundAction'
     sound: 'cydon.wav'
@@ -91,6 +104,25 @@ sensors: # Define sensors
     code: 15000 # Basic digital code
     behaviours: # Window open sensor transmitter does not use channels, it has a single base code
       0: set_state_alarm # Base code is not changed. Set `alarm` state by receiving this code by default.
+  telegram:
+    class: 'alarme.extras.TelegramSensor'
+    api_token: 'BOT API TOKEN' # Bot API token
+    behaviours: # Define which actions web control panel can do by which notification code as a sensor
+      start: set_state_start # Set `start` state
+      disable: set_state_disable # Set `disable` state
+      pass: set_state_pass # Set `pass` state
+      exit: set_state_exit # Set `exit` state
+      stay: set_state_stay # Set `stay` state
+      guard: set_state_guard # Set `guard` state
+      alarm: set_state_alarm # Set `alarm` state
+    commands:
+      start:
+        regexp: 'set_state (?P<state_id>.*)'
+        behaviour: '{state_id}'
+        reply: 'Set state: "{state_id}"'
+      get_state:
+        regexp: 'get_state'
+        reply: 'Current state: "{current_state_id}"'
   web: # Web server control
     class: 'alarme.extras.WebSensor' # Use default web server sensor class
     behaviours: # Define which actions web control panel can do by which notification code as a sensor
@@ -146,6 +178,7 @@ states: # Define states
   start: # Used to send notification E-mail about app start and set state to `pass`
     sensors: # React only for web sensor
       - web
+      - telegram
     schedules: # Define schedules
       start: # Send start E-mail once and change state to `pass`
         actions: # Actions can be combined with order
@@ -155,6 +188,7 @@ states: # Define states
   disable: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
       - web
+      - telegram
       - remote
   pass: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
@@ -173,6 +207,7 @@ states: # Define states
   exit: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
       - web
+      - telegram
       - remote
     schedules: # Define schedules
       set_state: # Automatically set `guard` state after 30 seconds (time to open a door after setting `exit` state)
@@ -183,12 +218,14 @@ states: # Define states
   stay: # Used when owner is at guarding site to alarm on activating of "perimeter" sensors (e. g. door/window open sensors)
     sensors: # Ignore all sensors except for `web` and `remote` as usual and perimeter sensors: `door`, `window`
       - web
+      - telegram
       - remote
       - door
       - window
   guard: # Used when nobody's at guarding site
     sensors: # React for all known sensors
       - web
+      - telegram
       - remote
       - door
       - window
@@ -197,6 +234,7 @@ states: # Define states
     reactivatable: false # Do not restart alarm schedule/actions
     sensors: # React for all known sensors just in case of unexpectedly stopping some schedule/action without state change
       - web
+      - telegram
       - remote
       - door
       - window
