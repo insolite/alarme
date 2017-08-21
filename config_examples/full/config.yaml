@@ -49,7 +49,7 @@ actions: # Define actions
     abstract: true
     class: 'alarme.extras.TelegramAction'
     api_token: 'BOT API TOKEN' # Bot API token
-    target: 'USER ID' # Private chat ID
+    target: 123456789 # Private chat ID
   telegram_start:
     <<: *telegram_base
     abstract: false
@@ -123,6 +123,8 @@ sensors: # Define sensors
       get_state:
         regexp: 'get_state'
         reply: 'Current state: "{current_state_id}"'
+    senders:
+      - 123456789
   web: # Web server control
     class: 'alarme.extras.WebSensor' # Use default web server sensor class
     behaviours: # Define which actions web control panel can do by which notification code as a sensor

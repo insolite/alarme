@@ -8,15 +8,18 @@ from alarme import Sensor
 
 class TelegramSensor(Sensor):
 
-    def __init__(self, app, id_, api_token, commands={}):
+    def __init__(self, app, id_, api_token, commands={}, senders=[]):
         super().__init__(app, id_)
         self.api_token = api_token
         self.bot = Bot(api_token=api_token)
         for command in commands.values():
             self.bot.add_command(command['regexp'], asyncio.coroutine(partial(self.handle_command, command)))
         self.loop_task = None
+        self.senders = [str(sender) for sender in senders]
 
     async def handle_command(self, command, chat, match):
+        if self.senders and str(chat.sender['id']) not in self.senders:
+            return
         env = {
             'current_state_id': self.app.state.id if self.app.state else None
         }

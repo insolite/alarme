@@ -13,5 +13,5 @@ class TelegramAction(Action):
         self.bot = Bot(api_token=api_token)
 
     async def run(self):
-        chat = self.bot.private(self.target)
+        chat = self.bot.private(str(self.target))
         await chat.send_text(self.text)
