@@ -16,7 +16,7 @@ class SetStateAction(Action):
         state_id = self.state_id
         if not state_id:
             state_id = self.read_last_state()
-            if self.fallback_state_id and self.app.state and self.app.state.id == state_id:
+            if not state_id or self.app.state and self.app.state.id == state_id:
                 state_id = self.fallback_state_id
         state = self.app.states[state_id]
         self.write_last_state(state)
