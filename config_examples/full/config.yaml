@@ -3,6 +3,7 @@ actions: # Define actions
     class: 'alarme.Action'
   set_state: &set_state # Set current state
     class: 'alarme.extras.SetStateAction'
+    last_state_file: '/home/user/.alarme/last_state_file'
   set_state_start:
     <<: *set_state
     state_id: start
@@ -24,6 +25,10 @@ actions: # Define actions
   set_state_alarm:
     <<: *set_state
     state_id: alarm
+  set_last_state:
+    <<: *set_state
+    state_id: null
+    fallback_state_id: pass
   email_base: &email_base # Base abstract E-mail action with SMTP connection details
     abstract: true
     class: 'alarme.extras.EmailAction'
@@ -178,14 +183,16 @@ sensors: # Define sensors
     debug: true # Display detailed debug info about possible request errors on the web page
 states: # Define states
   start: # Used to send notification E-mail about app start and set state to `pass`
+    reactivatable: false # Prevent infinite `start` state setting if last state in file was `start`
     sensors: # React only for web sensor
       - web
       - telegram
     schedules: # Define schedules
-      start: # Send start E-mail once and change state to `pass`
+      start: # Send start E-mail once and change state to last saved state
         actions: # Actions can be combined with order
           - email_start
-          - set_state_pass
+          - telegram_start
+          - set_last_state
         run_count: 1
   disable: # Used to turn off automatic alarming by reacting for non-control sensors
     sensors: # Ignore all sensors except for `web` and `remote`
